@@ -11,11 +11,8 @@ def get_db_url():
         return "postgresql://postgres:crimes123@localhost:5432/crime_db"
 
 
-st.set_page_config(
-    page_title="UK Crime Pipeline",
-    page_icon="🔍",
-    layout="wide"
-)
+st.set_page_config(page_title="UK Crime Pipeline", page_icon="🔍", layout="wide")
+
 
 @st.cache_data(ttl=300)
 def load_data():
@@ -25,6 +22,7 @@ def load_data():
     hotspots = pd.read_sql("SELECT * FROM analytics.fct_crime_hotspots", engine)
     engine.dispose()
     return monthly, by_city, hotspots
+
 
 monthly, by_city, hotspots = load_data()
 
@@ -74,15 +72,18 @@ st.divider()
 st.subheader("Crime category breakdown")
 
 col3, col4 = st.columns([1, 2])
+
 with col3:
-    selected_city = st.selectbox("Select city",
+    selected_city = st.selectbox(
+        "Select city",
         options=sorted(by_city["city"].unique()),
-        index=list(sorted(by_city["city"].unique())).index("Hull"))
+        index=list(sorted(by_city["city"].unique())).index("Hull")
+    )
 
 with col4:
     city_cats = (by_city[by_city["city"] == selected_city]
-        .groupby("category")["crime_count"].sum().reset_index()
-        .sort_values("crime_count", ascending=False).head(10))
+                 .groupby("category")["crime_count"].sum().reset_index()
+                 .sort_values("crime_count", ascending=False).head(10))
     fig3 = px.bar(city_cats, x="crime_count", y="category", orientation="h",
                   color="crime_count", color_continuous_scale="Blues",
                   labels={"crime_count": "Incidents", "category": "Crime type"})
@@ -92,19 +93,25 @@ with col4:
 st.divider()
 st.subheader("Top crime hotspots")
 
-hotspot_city = st.selectbox("Select city for hotspots",
-    options=sorted(hotspots["city"].unique()), key="hotspot_city")
+hotspot_city = st.selectbox(
+    "Select city for hotspots",
+    options=sorted(hotspots["city"].unique()),
+    key="hotspot_city"
+)
 
 city_hotspots = (hotspots[hotspots["city"] == hotspot_city]
-    .sort_values("incident_count", ascending=False).head(20).reset_index(drop=True))
+                 .sort_values("incident_count", ascending=False)
+                 .head(20).reset_index(drop=True))
 city_hotspots.index += 1
 
-st.dataframe(city_hotspots[["street_name", "category", "incident_count"]],
+st.dataframe(
+    city_hotspots[["street_name", "category", "incident_count"]],
     use_container_width=True,
     column_config={
         "street_name":    st.column_config.TextColumn("Street"),
         "category":       st.column_config.TextColumn("Crime type"),
         "incident_count": st.column_config.NumberColumn("Incidents", format="%d"),
-    })
+    }
+)
 
 st.caption("Data source: Police UK API · Pipeline: Python → PostgreSQL → dbt → Streamlit")
