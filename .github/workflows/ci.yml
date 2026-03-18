@@ -1,0 +1,103 @@
+name: CI - Lint, API Health and dbt Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Run ruff linter
+        run: ruff check ingestion/ dashboard/
+
+  api-health:
+    name: Police UK API Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install requests
+      - name: Check Police UK API is reachable
+        run: python tests/test_api_health.py
+
+  dbt-check:
+    name: dbt Model Validation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: crimes_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install dbt-postgres psycopg2-binary
+      - name: Create dbt profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          dbt_crimes:
+            target: ci
+            outputs:
+              ci:
+                type: postgres
+                host: localhost
+                port: 5432
+                user: postgres
+                password: postgres
+                dbname: crimes_db
+                schema: analytics
+                threads: 1
+          EOF
+      - name: Seed raw schema
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d crimes_db -c "
+            CREATE SCHEMA IF NOT EXISTS raw;
+            CREATE TABLE IF NOT EXISTS raw.crimes (
+              crime_id TEXT, fetch_month TEXT, city TEXT, category TEXT,
+              location_type TEXT, latitude TEXT, longitude TEXT,
+              street_name TEXT, outcome_status TEXT, month TEXT,
+              loaded_at TIMESTAMP DEFAULT NOW(),
+              PRIMARY KEY (crime_id, fetch_month, city)
+            );
+            INSERT INTO raw.crimes VALUES
+              ('t-001','2024-05','Hull','burglary','Force','53.74','0.33','Test St','Investigation complete','2024-05',NOW()),
+              ('t-002','2024-05','London','robbery','Force','51.50','-0.11','High St','Unable to prosecute','2024-05',NOW());
+          "
+      - name: dbt compile
+        working-directory: dbt_crimes
+        run: dbt compile --profiles-dir ~/.dbt
+      - name: dbt run
+        working-directory: dbt_crimes
+        run: dbt run --profiles-dir ~/.dbt
+      - name: dbt test
+        working-directory: dbt_crimes
+        run: dbt test --profiles-dir ~/.dbt

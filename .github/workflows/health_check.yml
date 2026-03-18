@@ -1,0 +1,29 @@
+name: Health Check — API & Pipeline Monitor
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: System Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install requests psycopg2-binary sqlalchemy python-dotenv
+      - name: Check Police UK API
+        run: python tests/test_api_health.py
+      - name: Check database connectivity
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python tests/test_db_health.py
+      - name: Check data freshness
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python tests/test_data_freshness.py
