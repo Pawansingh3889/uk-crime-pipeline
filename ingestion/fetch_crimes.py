@@ -7,7 +7,6 @@ Idempotent — safe to run multiple times.
 import os
 import time
 import requests
-import pandas as pd
 from pathlib import Path
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
