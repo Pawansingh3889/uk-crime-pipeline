@@ -1,0 +1,59 @@
+name: Scheduled - Weekly Crime Data Ingestion
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    name: Fetch and Load Crime Data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run ingestion pipeline
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_PORT: "5432"
+        run: python ingestion/fetch_crimes.py
+      - name: Install dbt
+        run: pip install dbt-postgres
+      - name: Create dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          dbt_crimes:
+            target: prod
+            outputs:
+              prod:
+                type: postgres
+                host: ${{ secrets.POSTGRES_HOST }}
+                port: 5432
+                user: ${{ secrets.POSTGRES_USER }}
+                password: ${{ secrets.POSTGRES_PASSWORD }}
+                dbname: ${{ secrets.POSTGRES_DB }}
+                schema: analytics
+                threads: 4
+          EOF
+      - name: dbt run
+        working-directory: dbt_crimes
+        run: dbt run --profiles-dir ~/.dbt
+      - name: dbt test
+        working-directory: dbt_crimes
+        run: dbt test --profiles-dir ~/.dbt
+      - name: Upload pipeline log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-log-${{ github.run_number }}
+          path: pipeline.log
+          retention-days: 30

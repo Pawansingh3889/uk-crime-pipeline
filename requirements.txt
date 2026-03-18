@@ -4,3 +4,5 @@ streamlit
 plotly
 pandas
 python-dotenv
+requests
+ruff
