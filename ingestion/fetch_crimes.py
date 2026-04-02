@@ -65,30 +65,41 @@ def setup_database(engine):
     print("Database ready.")
 
 
+MAX_RETRIES = 3
+RETRY_BACKOFF = [1, 2, 4]  # seconds between retries (exponential backoff)
+
+
 def fetch_crimes(lat, lng, date, city):
-    try:
-        resp = requests.get(
-            BASE_URL,
-            params={"lat": lat, "lng": lng, "date": date},
-            timeout=30
-        )
-        resp.raise_for_status()
-        crimes = resp.json()
-        for c in crimes:
-            c["city"] = city
-            c["fetch_month"] = date
-            if c.get("location"):
-                c["latitude"]    = c["location"].get("latitude")
-                c["longitude"]   = c["location"].get("longitude")
-                c["street_name"] = c["location"].get("street", {}).get("name")
+    for attempt in range(MAX_RETRIES):
+        try:
+            resp = requests.get(
+                BASE_URL,
+                params={"lat": lat, "lng": lng, "date": date},
+                timeout=30
+            )
+            resp.raise_for_status()
+            crimes = resp.json()
+            for c in crimes:
+                c["city"] = city
+                c["fetch_month"] = date
+                if c.get("location"):
+                    c["latitude"]    = c["location"].get("latitude")
+                    c["longitude"]   = c["location"].get("longitude")
+                    c["street_name"] = c["location"].get("street", {}).get("name")
+                else:
+                    c["latitude"] = c["longitude"] = c["street_name"] = None
+                if isinstance(c.get("outcome_status"), dict):
+                    c["outcome_status"] = c["outcome_status"].get("category")
+            return crimes
+        except requests.exceptions.RequestException as e:
+            wait = RETRY_BACKOFF[attempt] if attempt < len(RETRY_BACKOFF) else RETRY_BACKOFF[-1]
+            if attempt < MAX_RETRIES - 1:
+                print(f"  RETRY {attempt + 1}/{MAX_RETRIES} {city} {date}: {e} (waiting {wait}s)")
+                time.sleep(wait)
             else:
-                c["latitude"] = c["longitude"] = c["street_name"] = None
-            if isinstance(c.get("outcome_status"), dict):
-                c["outcome_status"] = c["outcome_status"].get("category")
-        return crimes
-    except Exception as e:
-        print(f"  ERROR {city} {date}: {e}")
-        return []
+                print(f"  FAILED {city} {date} after {MAX_RETRIES} attempts: {e}")
+                return []
+    return []
 
 
 def load_crimes(records, engine):
