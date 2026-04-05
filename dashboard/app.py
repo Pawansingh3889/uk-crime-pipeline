@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from sqlalchemy import create_engine
+import time
+from sqlalchemy import create_engine, text
 
 
 def get_db_url():
@@ -14,9 +15,31 @@ def get_db_url():
 st.set_page_config(page_title="UK Crime Pipeline", page_icon="🔍", layout="wide")
 
 
+def _create_engine_with_retry():
+    """Create engine with retry logic for Neon cold starts."""
+    db_url = get_db_url()
+    engine = create_engine(
+        db_url,
+        pool_pre_ping=True,
+        connect_args={"connect_timeout": 30},
+    )
+    # Neon free tier suspends after inactivity — first connect wakes it up
+    for attempt in range(3):
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return engine
+        except Exception:
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+            else:
+                raise
+    return engine
+
+
 @st.cache_data(ttl=300)
 def load_data():
-    engine = create_engine(get_db_url())
+    engine = _create_engine_with_retry()
     monthly  = pd.read_sql("SELECT * FROM analytics.fct_monthly_trend", engine)
     by_city  = pd.read_sql("SELECT * FROM analytics.fct_crimes_by_city", engine)
     hotspots = pd.read_sql("SELECT * FROM analytics.fct_crime_hotspots", engine)
@@ -24,7 +47,12 @@ def load_data():
     return monthly, by_city, hotspots
 
 
-monthly, by_city, hotspots = load_data()
+try:
+    monthly, by_city, hotspots = load_data()
+except Exception as e:
+    st.error(f"Database connection failed — the Neon database may be suspended. Try refreshing in 30 seconds.")
+    st.caption(f"Error: {type(e).__name__}")
+    st.stop()
 
 st.title("🔍 UK Crime Analytics Dashboard")
 st.caption("Live data from Police UK API · 10 cities · 6 months · 99,675 incidents")
