@@ -63,18 +63,8 @@ def load_data():
 
 try:
     monthly, by_city, hotspots = load_data()
-except Exception as e:
-    st.error("Database connection failed. Debug info below:")
-    st.code(str(e), language="text")
-    db_url = get_db_url()
-    # Mask password for display
-    masked = db_url
-    if "@" in db_url:
-        pre, post = db_url.split("@", 1)
-        if ":" in pre:
-            parts = pre.rsplit(":", 1)
-            masked = f"{parts[0]}:****@{post}"
-    st.caption(f"Connecting to: {masked}")
+except Exception:
+    st.error("Database is waking up. Refresh in 30 seconds.")
     st.stop()
 
 st.title("🔍 UK Crime Analytics Dashboard")
