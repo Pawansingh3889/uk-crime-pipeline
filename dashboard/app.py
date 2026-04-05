@@ -5,20 +5,25 @@ import time
 from sqlalchemy import create_engine, text
 
 
+NEON_URL = "postgresql://neondb_owner:npg_MeKPnB5Jcg0s@ep-bold-voice-a8nnv8qe-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
+
+
 def get_db_url():
-    """Get DATABASE_URL from Streamlit secrets."""
+    """Get DATABASE_URL from secrets, env, or default Neon connection."""
+    import os
+    # 1. Streamlit secrets
     try:
         url = st.secrets["DATABASE_URL"]
-        if url and "neon.tech" in url:
+        if url and len(url) > 20:
             return url
     except Exception:
         pass
-    # Fallback for local development
-    import os
-    return os.environ.get(
-        "DATABASE_URL",
-        "postgresql://postgres:crimes123@localhost:5432/crime_db"
-    )
+    # 2. Environment variable
+    env_url = os.environ.get("DATABASE_URL")
+    if env_url:
+        return env_url
+    # 3. Default Neon connection
+    return NEON_URL
 
 
 st.set_page_config(page_title="UK Crime Pipeline", page_icon="🔍", layout="wide")
