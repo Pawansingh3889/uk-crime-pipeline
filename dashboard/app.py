@@ -6,22 +6,19 @@ from sqlalchemy import create_engine, text
 
 
 def get_db_url():
-    """Build DATABASE_URL from secrets — supports both single URL and individual fields."""
+    """Get DATABASE_URL from Streamlit secrets."""
     try:
-        # Try single DATABASE_URL first
-        return st.secrets["DATABASE_URL"]
+        url = st.secrets["DATABASE_URL"]
+        if url and "neon.tech" in url:
+            return url
     except Exception:
         pass
-    try:
-        # Build from individual fields
-        host = st.secrets["POSTGRES_HOST"]
-        port = st.secrets.get("POSTGRES_PORT", "5432")
-        db   = st.secrets["POSTGRES_DB"]
-        user = st.secrets["POSTGRES_USER"]
-        pw   = st.secrets["POSTGRES_PASSWORD"]
-        return f"postgresql://{user}:{pw}@{host}:{port}/{db}?sslmode=require"
-    except Exception:
-        return "postgresql://postgres:crimes123@localhost:5432/crime_db"
+    # Fallback for local development
+    import os
+    return os.environ.get(
+        "DATABASE_URL",
+        "postgresql://postgres:crimes123@localhost:5432/crime_db"
+    )
 
 
 st.set_page_config(page_title="UK Crime Pipeline", page_icon="🔍", layout="wide")
