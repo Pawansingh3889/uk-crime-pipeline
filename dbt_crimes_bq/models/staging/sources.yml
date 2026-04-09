@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw
+    database: mediask-491710
+    schema: crime_analytics
+    tables:
+      - name: raw_crimes

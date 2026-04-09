@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: fct_crimes_by_city
+    description: Crime count and unsolved % by city, category, month
+    columns:
+      - name: city
+        tests:
+          - not_null
+      - name: crime_count
+        tests:
+          - not_null
+
+  - name: fct_monthly_trend
+    description: Total crimes and category breakdown per city per month
+    columns:
+      - name: city
+        tests:
+          - not_null
+      - name: total_crimes
+        tests:
+          - not_null
+
+  - name: fct_crime_hotspots
+    description: Top 100 street-level hotspots with 5+ incidents
+    columns:
+      - name: street_name
+        tests:
+          - not_null
+      - name: incident_count
+        tests:
+          - not_null

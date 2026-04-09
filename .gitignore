@@ -5,3 +5,11 @@ __pycache__
 target/
 dbt_packages/
 logs/
+
+# BigQuery
+keyfile.json
+*.tar.gz
+google-cloud-sdk/
+
+# Data files
+data/

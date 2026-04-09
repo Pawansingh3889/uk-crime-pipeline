@@ -1,0 +1,15 @@
+name: 'crime_analytics_bq'
+version: '1.0.0'
+config-version: 2
+
+profile: 'crime_analytics_bq'
+
+model-paths: ["models"]
+test-paths: ["tests"]
+
+models:
+  crime_analytics_bq:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

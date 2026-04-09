@@ -1,0 +1,11 @@
+crime_analytics_bq:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: mediask-491710
+      dataset: crime_analytics
+      location: EU
+      keyfile: keyfile.json
+      threads: 4

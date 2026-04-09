@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_crimes
+    description: Cleaned and cast crime records from Police UK API
+    columns:
+      - name: crime_id
+        description: Unique crime identifier
+        tests:
+          - not_null
+          - unique
+      - name: category
+        description: Crime category (lowercase, trimmed)
+        tests:
+          - not_null
+      - name: city
+        description: City name
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['London', 'Bristol', 'Manchester', 'Birmingham', 'Leeds', 'Liverpool', 'Sheffield', 'Nottingham', 'Newcastle', 'Hull']
+      - name: month
+        description: Year-month string (YYYY-MM)
+        tests:
+          - not_null
+      - name: latitude
+        description: Location latitude
+      - name: longitude
+        description: Location longitude
