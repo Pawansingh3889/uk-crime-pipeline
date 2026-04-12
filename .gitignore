@@ -13,3 +13,8 @@ google-cloud-sdk/
 
 # Data files
 data/
+# AI tools
+.claude/
+.cursorrules
+.continue/
+.aider*
