@@ -4,6 +4,12 @@
 [![Health Check](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml)
 [![Scheduled Ingest](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml)
 
+## Links
+- [GitHub](https://github.com/Pawansingh3889/uk-crime-pipeline)
+- [Streamlit Dashboard](https://uk-crime-pipeline-6nydeza7je8kiwsfl6deuw.streamlit.app/)
+- [Looker Studio](https://lookerstudio.google.com/reporting/9ee83425-04d3-4192-b4e4-de6a73d10211)
+- [Profile](https://github.com/Pawansingh3889)
+
 Live pipeline ingesting real crime data from the Police UK API. Not a tutorial — a production system with automated ingestion, health checks, and a public dashboard.
 
 **99,675 records &#183; 10 cities &#183; 53 dbt tests &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
