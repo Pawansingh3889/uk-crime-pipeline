@@ -6,3 +6,4 @@ pandas
 python-dotenv
 requests
 ruff
+polars>=1.0.0

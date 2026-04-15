@@ -1,0 +1,57 @@
+# Data SLOs for UK Crime Pipeline
+# Inspired by PyCon DE 2026: "Data Pipeline Operations Maturity Model" (Cakir)
+#
+# These objectives define the expected quality and reliability guarantees
+# for the Police UK API -> PostgreSQL -> dbt pipeline.
+
+slos:
+
+  freshness:
+    description: >
+      Data refreshes within 48 hours of the Police UK API publishing new
+      monthly data. Measured by the gap between the API release date and the
+      most recent loaded_at timestamp in raw.crimes.
+    target: 48h
+    measurement: |
+      SELECT MAX(loaded_at) AS last_load,
+             NOW() - MAX(loaded_at) AS lag
+      FROM raw.crimes;
+    alert_channel: "#data-quality"
+
+  completeness:
+    description: >
+      Critical columns must have a null rate below 1%.  Columns covered:
+      crime_id, category, city.
+    target: "<1% null rate"
+    columns:
+      - crime_id
+      - category
+      - city
+    measurement: |
+      SELECT
+        COUNT(*) AS total,
+        SUM(CASE WHEN crime_id IS NULL OR crime_id = '' THEN 1 ELSE 0 END)::float / COUNT(*) AS crime_id_null_pct,
+        SUM(CASE WHEN category IS NULL OR category = '' THEN 1 ELSE 0 END)::float / COUNT(*) AS category_null_pct,
+        SUM(CASE WHEN city IS NULL OR city = '' THEN 1 ELSE 0 END)::float / COUNT(*) AS city_null_pct
+      FROM raw.crimes;
+    alert_channel: "#data-quality"
+
+  volume:
+    description: >
+      Each monthly batch must contain more than 50 records per city.
+      Ensures the Police UK API returned meaningful data for every location.
+    target: ">50 records per city per month"
+    measurement: |
+      SELECT city, fetch_month, COUNT(*) AS row_count
+      FROM raw.crimes
+      GROUP BY city, fetch_month
+      HAVING COUNT(*) <= 50;
+    alert_channel: "#data-quality"
+
+  availability:
+    description: >
+      The end-to-end pipeline (ingestion + dbt) succeeds on more than 95%
+      of scheduled runs within a calendar month.
+    target: ">95% success rate per month"
+    measurement: "Tracked via Airflow DAG run history or CI pipeline logs."
+    alert_channel: "#data-ops"

@@ -1,9 +1,10 @@
 """
-Police UK API → PostgreSQL ingestion
+Police UK API -> PostgreSQL ingestion
 Fetches crime data for 10 UK cities and loads into PostgreSQL.
-Idempotent — safe to run multiple times.
+Idempotent \u2014 safe to run multiple times.
 """
 
+import logging
 import os
 import time
 import requests
@@ -11,10 +12,18 @@ from pathlib import Path
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
+from ingestion.validators import validate_batch
+
 # Load .env from project root regardless of where script is run from
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+log = logging.getLogger(__name__)
 
 DB_URL = (
     f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
@@ -135,16 +144,27 @@ def load_crimes(records, engine):
 
 
 def main():
-    print("UK Crime Pipeline — Ingestion")
+    print("UK Crime Pipeline \u2014 Ingestion")
     print("=" * 50)
     engine = create_engine(DB_URL)
     setup_database(engine)
 
     total = 0
+    validation_failures = 0
     for loc in LOCATIONS:
         for month in MONTHS:
             print(f"  Fetching {loc['city']} {month}...")
             crimes = fetch_crimes(loc["lat"], loc["lng"], month, loc["city"])
+
+            # Validate batch before load (write-audit-publish)
+            result = validate_batch(crimes, city=loc["city"], month=month)
+            if not result.passed:
+                validation_failures += 1
+                log.warning("Validation: %s", result.summary())
+            else:
+                log.info("Validation: %s", result.summary())
+
+            # Always load \u2014 validation is advisory (audit step)
             count = load_crimes(crimes, engine)
             total += count
             print(f"    Loaded {count:,} records")
@@ -152,6 +172,12 @@ def main():
 
     print("=" * 50)
     print(f"Total loaded: {total:,} crime records")
+    if validation_failures:
+        log.warning(
+            "%d of %d batches had validation warnings",
+            validation_failures,
+            len(LOCATIONS) * len(MONTHS),
+        )
     engine.dispose()
 
 
