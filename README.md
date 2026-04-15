@@ -75,6 +75,8 @@ Running 4 models:
   2. fct_crimes_by_city...... SELECT INTO (814 rows — crime count + unsolved % by city/category/month)
   3. fct_monthly_trend....... SELECT INTO (60 rows — total crimes + types per city per month)
   4. fct_crime_hotspots...... SELECT INTO (100 rows — top streets with ≥5 incidents)
+  5. fct_outcome_analysis.... SELECT INTO (resolution rates by city/category/outcome)
+  6. fct_year_over_year...... SELECT INTO (YoY crime comparison with trend labels)
 
 $ dbt test --profiles-dir .
 
@@ -225,7 +227,7 @@ python ingestion/fetch_crimes.py
 
 # Transform
 cd dbt_crimes
-dbt run --profiles-dir .    # 4 models
+dbt run --profiles-dir .    # 6 models
 dbt test --profiles-dir .   # 53 tests
 cd ..
 
