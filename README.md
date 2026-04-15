@@ -4,6 +4,23 @@
 [![Health Check](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml)
 [![Scheduled Ingest](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml)
 
+## What Problem Does This Solve?
+
+Public crime data exists but is scattered across monthly API dumps with no easy way to analyse trends, compare cities, or spot hotspots. This pipeline automates the entire process — fetching, cleaning, transforming, and visualising — so researchers, journalists, and citizens can explore UK crime patterns through interactive dashboards without touching a database.
+
+### Key Results
+
+| Metric | Value |
+|---|---|
+| Records processed | 99,675 |
+| Cities covered | 10 (Hull, London, Birmingham, Manchester, Leeds, Sheffield, Liverpool, Bristol, Nottingham, Newcastle) |
+| Automated tests | 65 (53 PostgreSQL + 12 BigQuery) |
+| CI/CD workflows | 3 (lint, health check, weekly ingest) |
+| Data validation | Declarative checks on bounds, nulls, categories before warehouse load |
+| SLO monitoring | Freshness (<48hrs), completeness (<1% nulls), volume (>50 records/city/month) |
+
+---
+
 Live pipeline ingesting real crime data from the Police UK API. Not a tutorial — a production system with automated ingestion, health checks, and a public dashboard.
 
 **99,675 records &#183; 10 cities &#183; 53 dbt tests &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
