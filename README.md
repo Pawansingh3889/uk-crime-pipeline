@@ -25,7 +25,7 @@ Live pipeline ingesting real crime data from the Police UK API. Not a tutorial â
 
 **99,675 records &#183; 10 cities &#183; 53 dbt tests &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
 
-**[Live Dashboard &rarr;](https://uk-crime-pipeline-6nydeza7je8kiwsfl6deuw.streamlit.app/)**
+**[Live Dashboard &rarr;](https://uk-crime-pipeline-6nydeza7je8kiwsfl6deuw.streamlit.app/)** &middot; **[Hugging Face](https://huggingface.co/spaces/pawankapkoti/uk-crime-analytics)**
 
 ---
 
