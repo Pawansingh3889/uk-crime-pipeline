@@ -1,0 +1,24 @@
+UK Crime Analytics Pipeline
+Copyright 2025-2026 Pawan Singh Kapkoti
+
+This product includes software developed by Pawan Singh Kapkoti
+(https://github.com/Pawansingh3889/uk-crime-pipeline) and released
+under the Apache License, Version 2.0.
+
+Data sources
+------------
+This pipeline consumes public data from data.police.uk, published under
+the UK Open Government Licence v3.0:
+<https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/>
+
+Derived datasets produced by this pipeline remain under OGL v3.0 per
+the OGL's downstream terms. Analysis code, dashboards, and dbt models
+produced by this project are separately licensed under Apache 2.0.
+
+Third-party dependencies
+------------------------
+Third-party libraries redistributed at runtime via requirements.txt
+are governed by their own licences (Polars under MIT, dbt-core under
+Apache-2.0, Streamlit under Apache-2.0, pandas under BSD-3-Clause,
+among others). Each dependency's licence prevails over anything in
+this NOTICE file.

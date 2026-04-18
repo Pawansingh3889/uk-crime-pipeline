@@ -3,6 +3,9 @@
 [![CI](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/ci.yml)
 [![Health Check](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/health_check.yml)
 [![Scheduled Ingest](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml/badge.svg)](https://github.com/Pawansingh3889/uk-crime-pipeline/actions/workflows/scheduled_ingest.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
+
+**Contributing:** [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`GOVERNANCE.md`](GOVERNANCE.md) · [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) · [`SECURITY.md`](SECURITY.md) · [`NOTICE`](NOTICE)
 
 ## What Problem Does This Solve?
 
