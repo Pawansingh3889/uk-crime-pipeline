@@ -18,3 +18,5 @@ data/
 .cursorrules
 .continue/
 .aider*
+
+.streamlit/secrets.toml
