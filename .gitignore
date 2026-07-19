@@ -5,3 +5,5 @@ __pycache__
 target/
 dbt_packages/
 logs/
+# local Streamlit secrets
+.streamlit/secrets.toml
