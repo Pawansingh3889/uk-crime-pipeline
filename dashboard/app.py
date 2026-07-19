@@ -5,11 +5,11 @@ import time
 from sqlalchemy import create_engine, text
 
 
-NEON_URL = "postgresql://neondb_owner:npg_MeKPnB5Jcg0s@ep-bold-voice-a8nnv8qe-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"
+
 
 
 def get_db_url():
-    """Get DATABASE_URL from secrets, env, or default Neon connection."""
+    """Get DATABASE_URL from Streamlit secrets or the environment."""
     import os
     # 1. Streamlit secrets
     try:
@@ -22,8 +22,10 @@ def get_db_url():
     env_url = os.environ.get("DATABASE_URL")
     if env_url:
         return env_url
-    # 3. Default Neon connection
-    return NEON_URL
+    # No fallback: credentials live in Streamlit secrets or the
+    # environment, never in source.
+    st.error("DATABASE_URL is not configured. Set it in Streamlit secrets or the environment.")
+    st.stop()
 
 
 st.set_page_config(page_title="UK Crime Pipeline", page_icon="🔍", layout="wide")
