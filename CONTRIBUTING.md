@@ -26,7 +26,7 @@ bucket. PRs that skip validation for any reason (speed, convenience,
 git clone https://github.com/YOUR_USERNAME/uk-crime-pipeline.git
 cd uk-crime-pipeline
 pip install -r requirements.txt
-pytest -q               # 65 tests across postgres + bigquery
+pytest -q               # 6 health and SLO checks
 ```
 
 Running the pipeline locally against your own PostgreSQL is documented

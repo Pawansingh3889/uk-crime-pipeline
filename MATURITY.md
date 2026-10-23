@@ -37,7 +37,7 @@ Self-assessment against the Data Pipeline Operations Maturity Model (PyCon DE 20
 |---|---|
 | Declarative validation | `ingestion/validators.py` (fluent API, 5 checks) |
 | Write-audit-publish | Validation runs before load in fetch_crimes.py |
-| 65 dbt tests | `dbt_crimes/` (53 PostgreSQL + 12 BigQuery) |
+| 6 pytest health and SLO checks | `tests/` (dbt data tests not written yet) |
 | Known category set | `POLICE_UK_CATEGORIES` frozenset validation |
 | UK bounds checking | Lat/lng validated against bounding box |
 | Pre-commit SQL lint | `.pre-commit-config.yaml` with sql-sop |
