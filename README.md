@@ -17,16 +17,16 @@ Public crime data exists but is scattered across monthly API dumps with no easy 
 |---|---|
 | Records processed | 99,675 |
 | Cities covered | 10 (Hull, London, Birmingham, Manchester, Leeds, Sheffield, Liverpool, Bristol, Nottingham, Newcastle) |
-| Automated tests | 65 (53 PostgreSQL + 12 BigQuery) |
+| Automated checks | 6 pytest health and SLO checks (dbt data tests are not written yet) |
 | CI/CD workflows | 3 (lint, health check, weekly ingest) |
 | Data validation | Declarative checks on bounds, nulls, categories before warehouse load |
 | SLO monitoring | Freshness (<48hrs), completeness (<1% nulls), volume (>50 records/city/month) |
 
 ---
 
-Live pipeline ingesting real crime data from the Police UK API. Not a tutorial — a production system with automated ingestion, health checks, and a public dashboard.
+A learning project that ingests real crime data from the Police UK API, with scheduled ingestion, health checks and a public dashboard. Still a work in progress.
 
-**99,675 records &#183; 10 cities &#183; 53 dbt tests &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
+**99,675 records &#183; 10 cities &#183; 6 dbt models &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
 
 **[Live Dashboard &rarr;](https://uk-crime-pipeline-6nydeza7je8kiwsfl6deuw.streamlit.app/)** &middot; **[Hugging Face](https://huggingface.co/spaces/pawankapkoti/uk-crime-analytics)**
 
@@ -73,7 +73,7 @@ Time: ~3 minutes
 ```
 $ cd dbt_crimes && dbt run --profiles-dir .
 
-Running 4 models:
+Running 6 models:
   1. stg_crimes.............. CREATE VIEW (staging — clean + cast raw data)
   2. fct_crimes_by_city...... SELECT INTO (814 rows — crime count + unsolved % by city/category/month)
   3. fct_monthly_trend....... SELECT INTO (60 rows — total crimes + types per city per month)
@@ -81,30 +81,13 @@ Running 4 models:
   5. fct_outcome_analysis.... SELECT INTO (resolution rates by city/category/outcome)
   6. fct_year_over_year...... SELECT INTO (YoY crime comparison with trend labels)
 
-$ dbt test --profiles-dir .
-
-  53 tests passed:
-  - not_null on every key column
-  - unique on composite keys
-  - accepted_values on crime categories
-  - relationships between staging and marts
-  - row count assertions
 ```
 
-### Step 3: Orchestrate with Prefect
+dbt data tests (not_null, unique, accepted_values) are not written yet; they are the next thing to add. Data quality is checked before load by `ingestion/validators.py` and after load by the pytest SLO checks in `tests/`.
 
-```
-$ python orchestration/flow.py
+### Step 3: Orchestrate
 
-Prefect flow: crime_pipeline
-  Task 1/5: ingest_from_api ✓
-  Task 2/5: load_to_postgres ✓
-  Task 3/5: run_quality_checks ✓ (99,675 rows, 10 cities)
-  Task 4/5: dbt_run ✓ (4 models)
-  Task 5/5: dbt_test ✓ (53 passed)
-
-Pipeline complete. Duration: 4m 12s
-```
+An Airflow DAG in `dags/crime_pipeline_dag.py` describes the flow (ingest, load, dbt run, quality checks). Day to day, the scheduled GitHub Actions workflow runs the same steps.
 
 ### Step 4: Dashboard serves live
 
@@ -167,7 +150,7 @@ Neon cloud PostgreSQL (serverless, free tier)
         ▼
 Streamlit Cloud (public URL)
         │
-        ├── Prefect orchestration (DAG: ingest → load → quality → dbt run → dbt test)
+        ├── Airflow DAG (ingest → load → dbt run → quality checks)
         │
         └── 3 GitHub Actions workflows:
             ├── CI: lint + dbt compile + run + test on every push
@@ -186,7 +169,7 @@ Streamlit Cloud (public URL)
 │  $ ruff check . ✓                                     │
 │  $ curl data.police.uk/api/... → 200 OK ✓            │
 │  $ docker run postgres:15 → service container up ✓    │
-│  $ dbt compile ✓ → dbt run ✓ → dbt test ✓ (53 pass) │
+│  $ dbt compile ✓ → dbt run ✓                         │
 └───────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────┐
@@ -194,7 +177,7 @@ Streamlit Cloud (public URL)
 │                                                       │
 │  $ python ingestion/fetch_crimes.py ✓                 │
 │  $ dbt run --profiles-dir . ✓                         │
-│  $ dbt test --profiles-dir . ✓ (53 passed)            │
+│  $ dbt test --profiles-dir . (no data tests yet)      │
 │  → Pipeline logs uploaded as artifact                 │
 └───────────────────────────────────────────────────────┘
 
@@ -231,7 +214,7 @@ python ingestion/fetch_crimes.py
 # Transform
 cd dbt_crimes
 dbt run --profiles-dir .    # 6 models
-dbt test --profiles-dir .   # 53 tests
+dbt test --profiles-dir .   # no data tests yet
 cd ..
 
 # Dashboard
@@ -259,8 +242,8 @@ streamlit run dashboard/app.py
 |---|---|
 | Ingestion | Python, Requests, SQLAlchemy |
 | Storage | PostgreSQL (local), Neon (cloud) |
-| Transformation | dbt-postgres — 4 models, 53 tests |
-| Orchestration | Prefect 3 |
+| Transformation | dbt-postgres: 6 models |
+| Orchestration | Airflow DAG, GitHub Actions schedule |
 | Dashboard | Streamlit, Plotly |
 | CI/CD | GitHub Actions (3 workflows) |
 | Deployment | Streamlit Cloud, Neon free tier |

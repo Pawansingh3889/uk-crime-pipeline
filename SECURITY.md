@@ -1,7 +1,7 @@
 # Security policy
 
-This pipeline ingests public data and writes to project-owned PostgreSQL
-and BigQuery warehouses. The security surface is narrower than a typical
+This pipeline ingests public data and writes to a project-owned PostgreSQL
+database. The security surface is narrower than a typical
 production system, but still worth taking seriously.
 
 ## Supported versions
