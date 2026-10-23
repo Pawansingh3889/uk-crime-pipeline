@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_crimes
+    description: One row per crime per fetch month and city, cleaned from raw.crimes.
+    data_tests:
+      - unique:
+          column_name: "crime_id || '|' || fetch_month || '|' || city"
+    columns:
+      - name: crime_id
+        data_tests: [not_null]
+      - name: fetch_month
+        data_tests: [not_null]
+      - name: month
+        data_tests: [not_null]
+      - name: city
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Hull, London, Birmingham, Manchester, Leeds, Sheffield, Liverpool, Bristol, Nottingham, Newcastle]
+      - name: category
+        data_tests:
+          - not_null
+          # Warn rather than fail: Police UK can add categories, and that should not stop the weekly ingest.
+          - accepted_values:
+              arguments:
+                values: [anti-social-behaviour, bicycle-theft, burglary, criminal-damage-arson, drugs, other-crime, other-theft, possession-of-weapons, public-order, robbery, shoplifting, theft-from-the-person, vehicle-crime, violent-crime]
+              config:
+                severity: warn
+      - name: outcome_category
+        data_tests: [not_null]

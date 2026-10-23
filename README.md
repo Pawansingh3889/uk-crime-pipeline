@@ -17,7 +17,7 @@ Public crime data exists but is scattered across monthly API dumps with no easy 
 |---|---|
 | Records processed | 99,675 |
 | Cities covered | 10 (Hull, London, Birmingham, Manchester, Leeds, Sheffield, Liverpool, Bristol, Nottingham, Newcastle) |
-| Automated checks | 6 pytest health and SLO checks (dbt data tests are not written yet) |
+| Automated checks | 31 dbt data tests and 6 pytest health and SLO checks |
 | CI/CD workflows | 3 (lint, health check, weekly ingest) |
 | Data validation | Declarative checks on bounds, nulls, categories before warehouse load |
 | SLO monitoring | Freshness (<48hrs), completeness (<1% nulls), volume (>50 records/city/month) |
@@ -26,7 +26,7 @@ Public crime data exists but is scattered across monthly API dumps with no easy 
 
 A learning project that ingests real crime data from the Police UK API, with scheduled ingestion, health checks and a public dashboard. Still a work in progress.
 
-**99,675 records &#183; 10 cities &#183; 6 dbt models &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
+**99,675 records &#183; 10 cities &#183; 6 dbt models &#183; 31 dbt tests &#183; 3 CI/CD workflows &#183; weekly auto-ingest**
 
 **[Live Dashboard &rarr;](https://uk-crime-pipeline-6nydeza7je8kiwsfl6deuw.streamlit.app/)** &middot; **[Hugging Face](https://huggingface.co/spaces/pawankapkoti/uk-crime-analytics)**
 
@@ -81,9 +81,14 @@ Running 6 models:
   5. fct_outcome_analysis.... SELECT INTO (resolution rates by city/category/outcome)
   6. fct_year_over_year...... SELECT INTO (YoY crime comparison with trend labels)
 
+$ dbt test --profiles-dir .
+  31 data tests: not_null and unique keys on every model,
+  accepted_values on cities, categories and trend labels,
+  relationships from marts to staging, UK coordinate bounds
+  and percentage ranges
 ```
 
-dbt data tests (not_null, unique, accepted_values) are not written yet; they are the next thing to add. Data quality is checked before load by `ingestion/validators.py` and after load by the pytest SLO checks in `tests/`.
+Data quality is checked before load by `ingestion/validators.py` and after load by the dbt tests and the pytest SLO checks in `tests/`.
 
 ### Step 3: Orchestrate
 
@@ -169,7 +174,7 @@ Streamlit Cloud (public URL)
 │  $ ruff check . ✓                                     │
 │  $ curl data.police.uk/api/... → 200 OK ✓            │
 │  $ docker run postgres:15 → service container up ✓    │
-│  $ dbt compile ✓ → dbt run ✓                         │
+│  $ dbt compile ✓ → dbt run ✓ → dbt test ✓ (31 tests) │
 └───────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────┐
@@ -177,7 +182,7 @@ Streamlit Cloud (public URL)
 │                                                       │
 │  $ python ingestion/fetch_crimes.py ✓                 │
 │  $ dbt run --profiles-dir . ✓                         │
-│  $ dbt test --profiles-dir . (no data tests yet)      │
+│  $ dbt test --profiles-dir . ✓ (31 tests)             │
 │  → Pipeline logs uploaded as artifact                 │
 └───────────────────────────────────────────────────────┘
 
@@ -214,7 +219,7 @@ python ingestion/fetch_crimes.py
 # Transform
 cd dbt_crimes
 dbt run --profiles-dir .    # 6 models
-dbt test --profiles-dir .   # no data tests yet
+dbt test --profiles-dir .   # 31 tests
 cd ..
 
 # Dashboard
@@ -242,7 +247,7 @@ streamlit run dashboard/app.py
 |---|---|
 | Ingestion | Python, Requests, SQLAlchemy |
 | Storage | PostgreSQL (local), Neon (cloud) |
-| Transformation | dbt-postgres: 6 models |
+| Transformation | dbt-postgres: 6 models, 31 data tests |
 | Orchestration | Airflow DAG, GitHub Actions schedule |
 | Dashboard | Streamlit, Plotly |
 | CI/CD | GitHub Actions (3 workflows) |

@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: fct_crimes_by_city
+    data_tests:
+      - unique:
+          column_name: "city || '|' || category || '|' || month"
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_crimes')
+                field: city
+      - name: category
+        data_tests: [not_null]
+      - name: month
+        data_tests: [not_null]
+      - name: crime_count
+        data_tests: [not_null]
+
+  - name: fct_monthly_trend
+    data_tests:
+      - unique:
+          column_name: "month || '|' || city"
+    columns:
+      - name: month
+        data_tests: [not_null]
+      - name: city
+        data_tests: [not_null]
+      - name: total_crimes
+        data_tests: [not_null]
+
+  - name: fct_crime_hotspots
+    data_tests:
+      - unique:
+          column_name: "city || '|' || street_name || '|' || category"
+    columns:
+      - name: street_name
+        data_tests: [not_null]
+      - name: incident_count
+        data_tests: [not_null]
+
+  - name: fct_outcome_analysis
+    data_tests:
+      - unique:
+          column_name: "city || '|' || category || '|' || month || '|' || outcome_category"
+    columns:
+      - name: outcome_category
+        data_tests: [not_null]
+      - name: total_crimes
+        data_tests: [not_null]
+
+  - name: fct_year_over_year
+    data_tests:
+      - unique:
+          column_name: "city || '|' || category || '|' || current_month"
+    columns:
+      - name: current_count
+        data_tests: [not_null]
+      - name: trend
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [no prior data, increasing, decreasing, stable]
