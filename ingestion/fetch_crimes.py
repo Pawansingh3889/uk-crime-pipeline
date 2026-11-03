@@ -111,9 +111,8 @@ def fetch_crimes(lat, lng, date, city):
     return []
 
 
-def load_crimes(records, engine):
-    if not records:
-        return 0
+def to_rows(records):
+    """Flatten API records into raw.crimes rows. Shared by the PostgreSQL and Snowflake loaders."""
     rows = []
     for c in records:
         rows.append({
@@ -128,6 +127,13 @@ def load_crimes(records, engine):
             "outcome_status": c.get("outcome_status"),
             "month":          c.get("month", ""),
         })
+    return rows
+
+
+def load_crimes(records, engine):
+    if not records:
+        return 0
+    rows = to_rows(records)
     with engine.connect() as conn:
         for row in rows:
             conn.execute(text("""
