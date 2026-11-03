@@ -7,10 +7,11 @@ Idempotent \u2014 safe to run multiple times.
 import logging
 import os
 import time
-import requests
 from pathlib import Path
-from sqlalchemy import create_engine, text
+
+import requests
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 from ingestion.validators import validate_batch
 

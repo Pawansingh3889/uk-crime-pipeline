@@ -1,23 +1,22 @@
-import streamlit as st
+import contextlib
+import time
+
 import pandas as pd
 import plotly.express as px
-import time
+import streamlit as st
 from sqlalchemy import create_engine, text
-
-
-
+from sqlalchemy.exc import OperationalError
 
 
 def get_db_url():
     """Get DATABASE_URL from Streamlit secrets or the environment."""
     import os
     # 1. Streamlit secrets
-    try:
+    # No secrets file raises StreamlitSecretNotFoundError (a FileNotFoundError); no key raises KeyError.
+    with contextlib.suppress(FileNotFoundError, KeyError):
         url = st.secrets["DATABASE_URL"]
         if url and len(url) > 20:
             return url
-    except Exception:
-        pass
     # 2. Environment variable
     env_url = os.environ.get("DATABASE_URL")
     if env_url:
@@ -65,7 +64,7 @@ def load_data():
 
 try:
     monthly, by_city, hotspots = load_data()
-except Exception:
+except OperationalError:
     st.error("Database is waking up. Refresh in 30 seconds.")
     st.stop()
 
@@ -98,7 +97,7 @@ with col1:
     fig = px.line(filtered.sort_values("month"), x="month", y="total_crimes",
                   color="city", markers=True,
                   labels={"total_crimes": "Total incidents", "month": "Month"})
-    fig.update_layout(height=350, margin=dict(t=10))
+    fig.update_layout(height=350, margin={"t": 10})
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -108,7 +107,7 @@ with col2:
     fig2 = px.bar(city_totals, x="total_crimes", y="city", orientation="h",
                   color="total_crimes", color_continuous_scale="Reds",
                   labels={"total_crimes": "Total incidents", "city": "City"})
-    fig2.update_layout(height=350, margin=dict(t=10), showlegend=False)
+    fig2.update_layout(height=350, margin={"t": 10}, showlegend=False)
     st.plotly_chart(fig2, use_container_width=True)
 
 st.divider()
@@ -120,7 +119,7 @@ with col3:
     selected_city = st.selectbox(
         "Select city",
         options=sorted(by_city["city"].unique()),
-        index=list(sorted(by_city["city"].unique())).index("Hull")
+        index=sorted(by_city["city"].unique()).index("Hull")
     )
 
 with col4:
@@ -130,7 +129,7 @@ with col4:
     fig3 = px.bar(city_cats, x="crime_count", y="category", orientation="h",
                   color="crime_count", color_continuous_scale="Blues",
                   labels={"crime_count": "Incidents", "category": "Crime type"})
-    fig3.update_layout(height=350, margin=dict(t=10), showlegend=False)
+    fig3.update_layout(height=350, margin={"t": 10}, showlegend=False)
     st.plotly_chart(fig3, use_container_width=True)
 
 st.divider()
