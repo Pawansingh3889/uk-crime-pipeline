@@ -17,7 +17,7 @@ Self-assessment against the Data Pipeline Operations Maturity Model (PyCon DE 20
 | Evidence | Where |
 |---|---|
 | Scheduled weekly ingest | `.github/workflows/scheduled_ingest.yml` (cron: Monday 6am) |
-| Airflow DAG defined | `dags/crime_pipeline_dag.py` (daily 6am, retry x2) |
+| Airflow DAG (Snowflake path) | `dags/crime_pipeline_snowflake_dag.py` (monthly, retry x2, load, freshness, dbt build) |
 | 3 CI/CD workflows | ci.yml, health_check.yml, scheduled_ingest.yml |
 | Idempotent upserts | `ON CONFLICT DO NOTHING` in fetch_crimes.py |
 | Retry with backoff | 3 retries, exponential backoff on API calls |
