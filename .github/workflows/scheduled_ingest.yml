@@ -24,7 +24,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_PORT: "5432"
-        run: python ingestion/fetch_crimes.py
+        run: python -m ingestion.fetch_crimes
       - name: Install dbt
         run: pip install dbt-postgres
       - name: Create dbt profiles
