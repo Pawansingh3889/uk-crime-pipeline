@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Crime records landed by the ingestion scripts (PostgreSQL or Snowflake).
+    tables:
+      - name: crimes
+        config:
+          loaded_at_field: loaded_at
+          freshness:
+            warn_after: {count: 35, period: day}
+            error_after: {count: 70, period: day}

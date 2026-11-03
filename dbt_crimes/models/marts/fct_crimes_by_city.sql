@@ -6,9 +6,9 @@ select
     category,
     month,
     count(*)                                           as crime_count,
-    count(*) filter (where outcome_status is null)     as unsolved_count,
+    sum(case when outcome_status is null then 1 else 0 end)     as unsolved_count,
     round(
-        count(*) filter (where outcome_status is null)::numeric
+        sum(case when outcome_status is null then 1 else 0 end)::numeric
         / nullif(count(*), 0) * 100, 1
     )                                                  as unsolved_pct
 from base

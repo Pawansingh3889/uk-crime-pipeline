@@ -1,5 +1,5 @@
 with source as (
-    select * from raw.crimes
+    select * from {{ source('raw', 'crimes') }}
 ),
 staged as (
     select

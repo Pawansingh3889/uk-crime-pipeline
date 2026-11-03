@@ -22,8 +22,8 @@ totals as (
         category,
         month,
         count(*) as total_crimes,
-        count(*) filter (
-            where outcome_category in (
+        sum(case
+            when outcome_category in (
                 'Local resolution',
                 'Offender given a caution',
                 'Offender given a drugs possession warning',
@@ -36,8 +36,8 @@ totals as (
                 'Suspect charged as part of another case',
                 'Offender otherwise dealt with',
                 'Offender sent to prison'
-            )
-        ) as resolved_count
+            ) then 1 else 0
+        end) as resolved_count
     from base
     group by city, category, month
 )

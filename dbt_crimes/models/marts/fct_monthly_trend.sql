@@ -6,7 +6,7 @@ select
     city,
     count(*)                 as total_crimes,
     count(distinct category) as crime_types,
-    count(*) filter (where outcome_status is null) as unsolved
+    sum(case when outcome_status is null then 1 else 0 end) as unsolved
 from base
 group by month, city
 order by month, city
