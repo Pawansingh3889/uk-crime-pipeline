@@ -16,11 +16,11 @@ from __future__ import annotations
 import logging
 import os
 import time
+from pathlib import Path
 
 import polars as pl
 import requests
 from dotenv import load_dotenv
-from pathlib import Path
 from sqlalchemy import create_engine, text
 
 from ingestion.validators import validate_batch

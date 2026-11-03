@@ -8,10 +8,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import List
 
 import pandas as pd
-
 
 # Official Police UK crime categories
 POLICE_UK_CATEGORIES = frozenset({
@@ -53,14 +51,14 @@ class ValidationResult:
 
     city: str
     month: str
-    checks: List[CheckResult] = field(default_factory=list)
+    checks: list[CheckResult] = field(default_factory=list)
 
     @property
     def passed(self) -> bool:
         return all(c.passed for c in self.checks)
 
     @property
-    def failed_checks(self) -> List[CheckResult]:
+    def failed_checks(self) -> list[CheckResult]:
         return [c for c in self.checks if not c.passed]
 
     def summary(self) -> str:
@@ -94,7 +92,7 @@ class CrimeBatchValidator:
         self._df = df
         self._city = city
         self._month = month
-        self._checks: List[CheckResult] = []
+        self._checks: list[CheckResult] = []
 
     # -- chainable expectation methods ----------------------------------------
 
