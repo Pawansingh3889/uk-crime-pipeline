@@ -50,7 +50,7 @@ A learning project that ingests real crime data from the Police UK API, with sch
 ### Step 1: Ingest from live API
 
 ```
-$ python ingestion/fetch_crimes.py
+$ python -m ingestion.fetch_crimes
 
 Fetching Hull (May 2024)... 1,847 records
 Fetching Hull (Jun 2024)... 1,923 records
@@ -180,7 +180,7 @@ Streamlit Cloud (public URL)
 ┌───────────────────────────────────────────────────────┐
 │  WORKFLOW 2: Scheduled Ingest (Monday 6am UTC)        │
 │                                                       │
-│  $ python ingestion/fetch_crimes.py ✓                 │
+│  $ python -m ingestion.fetch_crimes ✓                 │
 │  $ dbt run --profiles-dir . ✓                         │
 │  $ dbt test --profiles-dir . ✓ (31 tests)             │
 │  → Pipeline logs uploaded as artifact                 │
@@ -207,14 +207,18 @@ git clone https://github.com/Pawansingh3889/uk-crime-pipeline.git
 cd uk-crime-pipeline
 pip install -r requirements.txt
 
+# Settings: copy the example, set a password, load it into the shell
+cp .env.example .env
+set -a && . ./.env && set +a
+
 # Start PostgreSQL
 docker run -d --name crimes-postgres \
-  -e POSTGRES_PASSWORD=crimes123 \
+  -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
   -e POSTGRES_DB=crime_db \
   -p 5432:5432 postgres:15
 
 # Ingest from live API (~3 minutes)
-python ingestion/fetch_crimes.py
+python -m ingestion.fetch_crimes
 
 # Transform
 cd dbt_crimes
