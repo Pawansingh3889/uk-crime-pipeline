@@ -12,6 +12,8 @@ Police UK API → load_snowflake.py → @CRIMES_STAGE → COPY INTO temp table �
 
 The dbt models are shared with the PostgreSQL path: `--target dev` builds on Postgres, `--target snowflake` on Snowflake.
 
+This page is the one-time setup. For day-to-day running, fixing and stopping, see [`RUNBOOK.md`](../RUNBOOK.md).
+
 ## 1. Snowflake account (10 min)
 
 1. Sign up for a free trial at signup.snowflake.com (Standard edition, AWS, any region).
