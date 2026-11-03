@@ -1,6 +1,7 @@
 -- Year-over-year crime comparison by city and category.
 -- Compares each month against the same month in the prior year.
 
+-- Count crimes per city, type and month.
 with monthly as (
     select
         city,
@@ -11,6 +12,7 @@ with monthly as (
     group by city, category, month
 ),
 
+-- Line up each month with the same month one year earlier and work out the change.
 with_prior as (
     select
         curr.city,
@@ -40,6 +42,7 @@ with_prior as (
 select
     *,
     case
+        -- Label the change: no data last year, up more than 10%, down more than 10%, or stable.
         when prior_count is null then 'no prior data'
         when pct_change > 10 then 'increasing'
         when pct_change < -10 then 'decreasing'

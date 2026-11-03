@@ -5,6 +5,7 @@ with base as (
     select * from {{ ref('stg_crimes') }}
 ),
 
+-- Count how many crimes ended in each outcome, per city, type and month.
 outcome_counts as (
     select
         city,
@@ -16,6 +17,7 @@ outcome_counts as (
     group by city, category, month, outcome_category
 ),
 
+-- Count all crimes, and how many reached a real result like a fine, caution or charge.
 totals as (
     select
         city,
@@ -51,6 +53,7 @@ select
     t.total_crimes,
     round(oc.outcome_count::numeric / nullif(t.total_crimes, 0) * 100, 1) as outcome_pct,
     round(t.resolved_count::numeric / nullif(t.total_crimes, 0) * 100, 1) as resolution_rate
+-- Join the two counts to turn them into percentages.
 from outcome_counts oc
 join totals t
     on oc.city = t.city

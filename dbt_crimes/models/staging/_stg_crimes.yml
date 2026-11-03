@@ -1,5 +1,6 @@
 version: 2
 
+# Rules the tidied crimes must pass: no blanks, no duplicates, only our 10 cities and known crime types.
 models:
   - name: stg_crimes
     description: One row per crime per fetch month and city, cleaned from raw.crimes.

@@ -1,5 +1,6 @@
 version: 2
 
+# Tell dbt where the raw crimes shelf is, and warn if it has not been refilled for 35 days.
 sources:
   - name: raw
     description: Crime records landed by the ingestion scripts (PostgreSQL or Snowflake).

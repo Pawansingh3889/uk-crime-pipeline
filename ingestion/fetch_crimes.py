@@ -78,6 +78,7 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = [1, 2, 4]  # seconds between retries (exponential backoff)
 
 
+# Ask the police website for all crimes near a city's centre in one month, trying up to 3 times if it fails.
 def fetch_crimes(lat, lng, date, city):
     for attempt in range(MAX_RETRIES):
         try:
@@ -111,6 +112,7 @@ def fetch_crimes(lat, lng, date, city):
     return []
 
 
+# Turn each crime from the website's messy format into a neat row with our ten columns.
 def to_rows(records):
     """Flatten API records into raw.crimes rows. Shared by the PostgreSQL and Snowflake loaders."""
     rows = []
@@ -130,6 +132,7 @@ def to_rows(records):
     return rows
 
 
+# Save rows into Postgres, skipping any crime that is already saved.
 def load_crimes(records, engine):
     if not records:
         return 0
