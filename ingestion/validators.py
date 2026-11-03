@@ -237,6 +237,7 @@ class CrimeBatchValidator:
         )
 
 
+# Health check for one city's month of crimes: enough rows, no missing fields, sensible locations and categories.
 def validate_batch(records: list, *, city: str, month: str) -> ValidationResult:
     """Convenience wrapper: validate a list of crime dicts.
 

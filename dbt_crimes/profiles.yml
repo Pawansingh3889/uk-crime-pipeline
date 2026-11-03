@@ -10,3 +10,13 @@ dbt_crimes:
       dbname: crime_db
       schema: analytics
       threads: 4
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: CRIME_PIPELINE
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: CRIME_TRANSFORMER
+      warehouse: CRIME_WH
+      database: CRIME_DB
+      schema: ANALYTICS
+      threads: 4

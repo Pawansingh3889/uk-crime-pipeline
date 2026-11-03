@@ -7,3 +7,5 @@ dbt_packages/
 logs/
 # local Streamlit secrets
 .streamlit/secrets.toml
+.venv/
+.airflow/

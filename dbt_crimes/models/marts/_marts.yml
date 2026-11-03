@@ -1,5 +1,6 @@
 version: 2
 
+# Rules each summary table must pass: no blanks, no duplicate rows, and cities that exist in the tidied data.
 models:
   - name: fct_crimes_by_city
     data_tests:

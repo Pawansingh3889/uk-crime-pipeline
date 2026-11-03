@@ -92,7 +92,7 @@ Data quality is checked before load by `ingestion/validators.py` and after load 
 
 ### Step 3: Orchestrate
 
-An Airflow DAG in `dags/crime_pipeline_dag.py` describes the flow (ingest, load, dbt run, quality checks). Day to day, the scheduled GitHub Actions workflow runs the same steps.
+Two ways to run it. The weekly GitHub Actions workflow runs ingest, dbt run and dbt test against PostgreSQL. The Airflow DAG in `dags/crime_pipeline_snowflake_dag.py` runs the Snowflake path: load one month through a stage and `MERGE`, check source freshness, then `dbt build`. Setup and a hands-on walkthrough are in [`snowflake/README.md`](snowflake/README.md).
 
 ### Step 4: Dashboard serves live
 
