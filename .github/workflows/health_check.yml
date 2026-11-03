@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install requests psycopg2-binary sqlalchemy python-dotenv
+        run: pip install requests "psycopg[binary]>=3.1" "sqlalchemy>=2.0" python-dotenv
       - name: Check Police UK API
         run: python tests/test_api_health.py
       - name: Check database connectivity
