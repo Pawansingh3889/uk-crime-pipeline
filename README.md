@@ -207,9 +207,13 @@ git clone https://github.com/Pawansingh3889/uk-crime-pipeline.git
 cd uk-crime-pipeline
 pip install -r requirements.txt
 
+# Settings: copy the example, set a password, load it into the shell
+cp .env.example .env
+set -a && . ./.env && set +a
+
 # Start PostgreSQL
 docker run -d --name crimes-postgres \
-  -e POSTGRES_PASSWORD=crimes123 \
+  -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
   -e POSTGRES_DB=crime_db \
   -p 5432:5432 postgres:15
 
